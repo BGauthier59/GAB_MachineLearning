@@ -14,6 +14,7 @@ public class DataManager : MonoSingleton<DataManager>
 
     public override void Awake()
     {
+        base.Awake();
         SetPath();
     }
 
