@@ -5264,7 +5264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   net:
-    layers: 03000000060000000600000004000000
+    layers: 03000000060000000600000003000000
   fitness: 0
   controller: {fileID: 7355580537576360117}
   rayRange: 2

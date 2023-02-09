@@ -35,6 +35,7 @@ public class AgentManager : MonoSingleton<AgentManager>
     [SerializeField] private float addedTimePerGeneration;
 
     [SerializeField] private AnimationCurve trainingTimeOverFitness;
+    [SerializeField] private int firstCopyInNextGeneration;
 
     private void Start()
     {
@@ -89,9 +90,22 @@ public class AgentManager : MonoSingleton<AgentManager>
             _agents[i].SetDefaultMaterial();
         }
 
+        var count = 0;
         for (int i = _agents.Count / 2; i < _agents.Count; i++)
         {
-            _agents[i].net.CopyNet(_agents[i - _agents.Count / 2].net);
+            if (count < firstCopyInNextGeneration)
+            {
+                _agents[i].net.CopyNet(_agents[0].net);
+                _agents[i].name = $"First Mutated {i}";
+            }
+            else
+            {
+                _agents[i].net.CopyNet(_agents[i - count].net);
+                _agents[i].name = $"Mutated {i}";
+            }
+
+            count++;
+
             _agents[i].net.Mutate(mutationRate, mutationPower);
             _agents[i].SetMutatedMaterial();
         }

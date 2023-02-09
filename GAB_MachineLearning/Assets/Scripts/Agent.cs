@@ -103,14 +103,12 @@ public class Agent : MonoBehaviour
         nextCheckPointLocalPos.Normalize();
         var horizontalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.up) / 180f;
         inputs[0] = horizontalAngle;
-
-
+        
         nextCheckPointLocalPos = transform.InverseTransformPoint(nextCheckpoint.position);
         nextCheckPointLocalPos.x = 0;
         nextCheckPointLocalPos.Normalize();
         var verticalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.right) / 180f;
         inputs[1] = verticalAngle;
-
 
         inputs[2] = 1f;
     }
@@ -143,7 +141,7 @@ public class Agent : MonoBehaviour
         controller.verticalInput = net.neurons[^1][0];
         controller.horizontalInput = net.neurons[^1][1];
         controller.altitudeInput = net.neurons[^1][2];
-        controller.rollInput = net.neurons[^1][3];
+        //controller.rollInput = net.neurons[^1][3];
     }
 
     private float currentSqrDistance;
