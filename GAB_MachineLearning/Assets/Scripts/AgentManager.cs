@@ -51,6 +51,18 @@ public class AgentManager : MonoSingleton<AgentManager>
         yield return new WaitForSeconds(trainingDuration);
         //trainingDuration = trainingTimeOverFitness.Evaluate(_agents[0].fitness);
         trainingDuration += addedTimePerGeneration;
+
+        float averageFitness = 0;
+        float maxFitness = 0;
+        foreach (var a in _agents)
+        {
+            if (a.fitness > maxFitness) maxFitness = a.fitness;
+            averageFitness += a.fitness;
+        }
+
+        averageFitness /= _agents.Count;
+        Debug.Log($"For Generation {generationCount}, Average fitness is {averageFitness} and Max fitness is {maxFitness}");
+        
         StartCoroutine(Loop());
     }
 
@@ -98,9 +110,14 @@ public class AgentManager : MonoSingleton<AgentManager>
                 _agents[i].net.CopyNet(_agents[0].net);
                 _agents[i].name = $"First Mutated {i}";
             }
+            else if (count > firstCopyInNextGeneration && count < firstCopyInNextGeneration * 2 + 1)
+            {
+                _agents[i].net.CopyNet(_agents[1].net);
+                _agents[i].name = $"Second Mutated {i}";
+            }
             else
             {
-                _agents[i].net.CopyNet(_agents[i - count].net);
+                _agents[i].net.CopyNet(_agents[i - count * 2].net);
                 _agents[i].name = $"Mutated {i}";
             }
 

@@ -40,7 +40,6 @@ public class NewAgentController : MonoBehaviour
         return k / (1.0f + k);
     }
 
-    private Vector3 angularVel;
 
     private void Rotate()
     {
@@ -48,7 +47,6 @@ public class NewAgentController : MonoBehaviour
         //transform.localEulerAngles += (transform.up * horizontalInput + transform.right * altitudeInput - transform.forward * rollInput).normalized * (rotateSpeed * Time.fixedDeltaTime);
         //transform.localEulerAngles += (transform.up * horizontalInput).normalized * (rotateSpeed * Time.fixedDeltaTime);
 
-        angularVel = Vector3.zero;
         //angularVel += (transform.up * horizontalInput).normalized; //* (rotateSpeed * Time.fixedDeltaTime);
         //angularVel += (transform.right * altitudeInput).normalized; //* (rotateSpeed * Time.fixedDeltaTime);
         //angularVel += (transform.forward * rollInput).normalized;
@@ -68,10 +66,10 @@ public class NewAgentController : MonoBehaviour
         /*
         rb.angularVelocity = (transform.right * altitudeInput) * (rotateSpeed * Time.fixedDeltaTime) +
                              (transform.up * horizontalInput) * (rotateSpeed * Time.fixedDeltaTime);
-
         */
-        rb.angularVelocity = (transform.right * altitudeInput + transform.up * horizontalInput /*+ transform.forward * rollInput*/) *
-                             (rotateSpeed * Time.fixedDeltaTime);
+        
+        rb.angularVelocity = (transform.right * altitudeInput + transform.up * horizontalInput) * (rotateSpeed * Time.fixedDeltaTime);
+        //rb.angularVelocity = (transform.right * altitudeInput) * (rotateSpeed * Time.fixedDeltaTime);
     }
 
     public void Reset()

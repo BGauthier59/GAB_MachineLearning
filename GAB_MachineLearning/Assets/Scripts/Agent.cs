@@ -91,25 +91,14 @@ public class Agent : MonoBehaviour
         relativePosY = transform.position.y - nextCheckpoint.position.y;
         relativePosY = (math.tanh(relativePosY) + 1) / 2f;
         //inputs[0] = relativePosY;
-
-
         //CheckpointManager.instance.GetClosestCheckpointTransform(this);
 
         // Devant
         //inputs[0] = RaySensor(pos, transform.forward, 2f);
         
-        nextCheckPointLocalPos = transform.InverseTransformPoint(nextCheckpoint.position);
-        nextCheckPointLocalPos.y = 0;
-        nextCheckPointLocalPos.Normalize();
-        var horizontalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.up) / 180f;
-        inputs[0] = horizontalAngle;
+        inputs[0] = GetHorizontalAngle();
+        inputs[1] = GetVerticalAngle();
         
-        nextCheckPointLocalPos = transform.InverseTransformPoint(nextCheckpoint.position);
-        nextCheckPointLocalPos.x = 0;
-        nextCheckPointLocalPos.Normalize();
-        var verticalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.right) / 180f;
-        inputs[1] = verticalAngle;
-
         inputs[2] = 1f;
     }
 
@@ -127,6 +116,26 @@ public class Agent : MonoBehaviour
 
         Debug.DrawRay(origin, dir * (length * rayRange), Color.red);
         return 0;
+    }
+
+    private float GetHorizontalAngle()
+    {
+        nextCheckPointLocalPos = transform.InverseTransformPoint(nextCheckpoint.position);
+        nextCheckPointLocalPos.y = 0;
+        nextCheckPointLocalPos.Normalize();
+        var horizontalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.up) / 180f;
+
+        return horizontalAngle;
+    }
+
+    private float GetVerticalAngle()
+    {
+        nextCheckPointLocalPos = transform.InverseTransformPoint(nextCheckpoint.position);
+        nextCheckPointLocalPos.x = 0;
+        nextCheckPointLocalPos.Normalize();
+        var verticalAngle = Vector3.SignedAngle(Vector3.forward, nextCheckPointLocalPos, Vector3.right) / 180f;
+
+        return verticalAngle;
     }
 
     public void OnDrawGizmosSelected()
