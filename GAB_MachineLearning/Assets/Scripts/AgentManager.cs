@@ -21,26 +21,11 @@ public class AgentManager : MonoSingleton<AgentManager>
 
     private Agent agent;
     private List<Agent> _agents = new List<Agent>();
-
-    [SerializeField] private TMP_Text timerText;
-    [SerializeField] private TMP_Text generationCountText;
-    private float startingTime;
-    private int generationCount;
-
-    public AnimationCurve fitnessOverDistanceMultiplier;
-    [SerializeField] private float maxDistanceToReward;
-    public float maxSqrDistanceToReward;
-    public float distanceWeight;
-
-    [SerializeField] private float addedTimePerGeneration;
-
-    [SerializeField] private AnimationCurve trainingTimeOverFitness;
+    
     [SerializeField] private int firstCopyInNextGeneration;
 
     private void Start()
     {
-        maxSqrDistanceToReward = math.pow(maxDistanceToReward, 2);
-
         StartCoroutine(Loop());
     }
 
@@ -49,26 +34,11 @@ public class AgentManager : MonoSingleton<AgentManager>
         StartNewGeneration();
         Focus();
         yield return new WaitForSeconds(trainingDuration);
-        //trainingDuration = trainingTimeOverFitness.Evaluate(_agents[0].fitness);
-        trainingDuration += addedTimePerGeneration;
-
-        float averageFitness = 0;
-        float maxFitness = 0;
-        foreach (var a in _agents)
-        {
-            if (a.fitness > maxFitness) maxFitness = a.fitness;
-            averageFitness += a.fitness;
-        }
-
-        averageFitness /= _agents.Count;
-        Debug.Log($"For Generation {generationCount}, Average fitness is {averageFitness} and Max fitness is {maxFitness}");
-        
         StartCoroutine(Loop());
     }
 
     private void Focus()
     {
-        NeuralNetworkViewer.instance.Refresh(_agents[0]);
         cameraController.target = _agents[0].transform;
     }
 
@@ -79,10 +49,7 @@ public class AgentManager : MonoSingleton<AgentManager>
         AddOrRemoveAgents();
         Mutate();
         ResetAgents();
-        SetMaterials();
-        RefreshGenerationCount();
         CheckpointManager.instance.Reset();
-        ResetTimer();
     }
 
     private void Mutate()
@@ -135,54 +102,15 @@ public class AgentManager : MonoSingleton<AgentManager>
             _agents[i].ResetAgent();
         }
     }
-
-    private void SetMaterials()
-    {
-        return;
-        for (int i = 1; i < _agents.Count / 2; i++)
-        {
-            _agents[i].SetDefaultMaterial();
-        }
-
-        _agents[0].SetFirstMaterial();
-    }
-
-    void RefreshGenerationCount()
-    {
-        generationCount++;
-        generationCountText.text = generationCount.ToString();
-    }
-
-    void ResetTimer()
-    {
-        startingTime = Time.time;
-    }
-
-    private void Update()
-    {
-        timerText.text = (trainingDuration - (Time.time - startingTime)).ToString("F1");
-    }
-
+    
     private void AddOrRemoveAgents()
     {
         if (_agents.Count != populationSize)
         {
             int dif = populationSize - _agents.Count;
 
-            if (dif > 0)
-            {
-                for (int i = 0; i < dif; i++)
-                {
-                    AddAgent();
-                }
-            }
-            else
-            {
-                for (int i = 0; i < -dif; i++)
-                {
-                    RemoveAgent();
-                }
-            }
+            if (dif > 0) for (int i = 0; i < dif; i++) AddAgent();
+            else for (int i = 0; i < -dif; i++) RemoveAgent();
         }
     }
 
@@ -210,13 +138,12 @@ public class AgentManager : MonoSingleton<AgentManager>
             nets.Add(_agents[i].net);
         }
 
-        DataManager.instance.Save(nets, generationCount);
+        DataManager.instance.Save(nets);
     }
 
     public void Load()
     {
-        Data data = DataManager.instance.Load();
-        generationCount = data.generation;
+        var data = DataManager.instance.Load();
 
         if (data != null)
         {
@@ -233,7 +160,6 @@ public class AgentManager : MonoSingleton<AgentManager>
     {
         StopAllCoroutines();
         StartCoroutine(Loop());
-        ResetTimer();
     }
 
     #endregion

@@ -85,12 +85,6 @@ public class NeuralNetwork
 
                 neurons[x][y] = math.tanh(_value);
             }
-
-            var output = neurons[^1];
-            for (var i = 0; i < output.Length; i++)
-            {
-                //Debug.Log($"Output : {i} / {output[i]}");
-            }
         }
     }
 
@@ -118,9 +112,6 @@ public class NeuralNetwork
                 {
                     if (Random.value < probability)
                     {
-                        //_value = Random.Range(-power, power);
-                        //axons[x][y][z] = _value * _value * _value;
-                        
                         axons[x][y][z] += Random.Range(-power, power);
                     }
                 }
