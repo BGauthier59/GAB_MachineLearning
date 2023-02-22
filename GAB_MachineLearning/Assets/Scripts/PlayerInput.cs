@@ -21,6 +21,7 @@ public class PlayerInput : MonoBehaviour
         CheckInput();
         MoveInteractable();
         MoveInteractable();
+        SetInteractableAltitude();
     }
 
     private void CastRay()
@@ -38,7 +39,6 @@ public class PlayerInput : MonoBehaviour
             if (currentInteractable != null && newInteractable != currentInteractable) currentInteractable.Release();
             currentInteractable = newInteractable;
             currentInteractable.Hover();
-            Debug.Log(currentInteractable.name);
         }
         else
         {
@@ -73,7 +73,7 @@ public class PlayerInput : MonoBehaviour
         if (Physics.Raycast(ray.origin, ray.direction, out var hit, float.PositiveInfinity, ground))
         {
             var newPos = hit.point;
-            newPos.y = 0;
+            newPos.y = currentInteractable.transform.position.y;
 
             newPos.x = math.round(newPos.x);            
             newPos.z = math.round(newPos.z);
@@ -82,5 +82,17 @@ public class PlayerInput : MonoBehaviour
 
             currentInteractable.transform.position = newPos;
         }
+    }
+
+    private void SetInteractableAltitude()
+    {
+        if (!currentInteractableSelected) return;
+
+        var deltaY = Input.mouseScrollDelta.y;
+        if (deltaY == 0) return;
+        var pos = currentInteractable.transform.position;
+        pos.y += deltaY;
+        pos.y = math.clamp(pos.y, -7, 0);
+        currentInteractable.transform.position = pos;
     }
 }

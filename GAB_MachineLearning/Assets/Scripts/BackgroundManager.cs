@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 public class BackgroundManager : MonoBehaviour
@@ -19,7 +20,7 @@ public class BackgroundManager : MonoBehaviour
 
     [SerializeField] private Renderer backgroundRd;
     [SerializeField] private Renderer playgroundRd;
-    private static readonly int Color = Shader.PropertyToID("_Color");
+    [SerializeField] private float fadeDuration;
 
     private void Start()
     {
@@ -32,8 +33,10 @@ public class BackgroundManager : MonoBehaviour
         currentScheme++;
         if (currentScheme == schemes.Length) currentScheme = 0;
         Debug.Log("Changing Color scheme");
-        playgroundRd.material.color = schemes[currentScheme].playground;
-        backgroundRd.material.color = schemes[currentScheme].background;
+        //playgroundRd.material.color = schemes[currentScheme].playground;
+        playgroundRd.material.DOColor(schemes[currentScheme].playground, fadeDuration);
+        //backgroundRd.material.color = schemes[currentScheme].background;
+        backgroundRd.material.DOColor(schemes[currentScheme].background, fadeDuration);
         RenderSettings.ambientLight = schemes[currentScheme].ambientColor;
     }
 }
