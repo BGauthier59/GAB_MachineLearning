@@ -21,8 +21,9 @@ public class AgentManager : MonoSingleton<AgentManager>
 
     private Agent agent;
     private List<Agent> _agents = new List<Agent>();
-    
+
     [SerializeField] private int firstCopyInNextGeneration;
+    private bool autoCalculateLeaderBoard;
 
     private void Start()
     {
@@ -102,15 +103,19 @@ public class AgentManager : MonoSingleton<AgentManager>
             _agents[i].ResetAgent();
         }
     }
-    
+
     private void AddOrRemoveAgents()
     {
         if (_agents.Count != populationSize)
         {
             int dif = populationSize - _agents.Count;
 
-            if (dif > 0) for (int i = 0; i < dif; i++) AddAgent();
-            else for (int i = 0; i < -dif; i++) RemoveAgent();
+            if (dif > 0)
+                for (int i = 0; i < dif; i++)
+                    AddAgent();
+            else
+                for (int i = 0; i < -dif; i++)
+                    RemoveAgent();
         }
     }
 
@@ -125,6 +130,27 @@ public class AgentManager : MonoSingleton<AgentManager>
     {
         Destroy(_agents[^1].gameObject);
         _agents.RemoveAt(_agents.Count - 1);
+    }
+
+    private Agent[] GetBestAgentsInRun(int count)
+    {
+        _agents = _agents.OrderByDescending(a => a.fitness).ToList();
+
+        var bests = new List<Agent>();
+        for (int i = 0; i < count; i++)
+        {
+            bests.Add(_agents[i]);
+        }
+
+        return bests.ToArray();
+    }
+
+    private void Update()
+    {
+        if (autoCalculateLeaderBoard)
+        {
+            LeaderBoard();
+        }
     }
 
     #region Buttons
@@ -160,6 +186,23 @@ public class AgentManager : MonoSingleton<AgentManager>
     {
         StopAllCoroutines();
         StartCoroutine(Loop());
+    }
+
+    public void LeaderBoard()
+    {
+        var bests = GetBestAgentsInRun(3);
+
+        for (int i = 1; i < bests.Length + 1; i++)
+        {
+            leaderboardTexts[i - 1].text = $"{i} - {bests[i - 1].name} ({bests[i - 1].fitness:F2})";
+        }
+    }
+
+    [SerializeField] private TMP_Text[] leaderboardTexts;
+
+    public void LeaderBoardToggle()
+    {
+        autoCalculateLeaderBoard = !autoCalculateLeaderBoard;
     }
 
     #endregion
