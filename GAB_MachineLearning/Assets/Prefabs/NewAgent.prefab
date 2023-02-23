@@ -5296,11 +5296,9 @@ MonoBehaviour:
   horizontalInput: 0
   verticalInput: 0
   altitudeInput: 0
-  rollInput: 0
   rb: {fileID: 2714286820544498589}
   moveSpeed: 500
   rotateSpeed: 100
-  altitudeSpeed: 25
 --- !u!54 &2714286820544498589
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5324,7 +5322,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5758961971297179927}
-  m_Material: {fileID: 13400000, guid: 24995548a94368347987cb8e9788ffe1, type: 2}
+  m_Material: {fileID: 13400000, guid: c28ab45170ec9ea47b6c3cc271363a9f, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.25
