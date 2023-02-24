@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -80,7 +81,7 @@ public class PlayerInput : MonoBehaviour
 
             if ((currentInteractable.transform.position - newPos).magnitude < distanceToMove) return;
 
-            currentInteractable.transform.position = newPos;
+            currentInteractable.transform.DOMove(newPos, .1f);
         }
     }
 
@@ -93,6 +94,6 @@ public class PlayerInput : MonoBehaviour
         var pos = currentInteractable.transform.position;
         pos.y += deltaY;
         pos.y = math.clamp(pos.y, -7, 0);
-        currentInteractable.transform.position = pos;
+        currentInteractable.transform.DOMove(pos, .1f);
     }
 }

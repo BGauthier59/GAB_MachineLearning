@@ -18,16 +18,15 @@ public class Agent : MonoBehaviour
     [SerializeField] private float totalCheckPointDist;
     public Transform nextCheckpoint;
     [SerializeField] private float nextCheckPointDist;
-
-    //[SerializeField] private Transform closestCheckPoint;
-    //public Checkpoint lastTakenCheckPoint;
-    //public float maxSqrDistanceReached;
+    private float bonusPoints;
 
     [SerializeField] private Renderer[] rds;
 
     [SerializeField] private Material firstMat;
     [SerializeField] private Material defaultMat;
     [SerializeField] private Material mutatedMat;
+
+    public Outline outline;
 
     public void ResetAgent()
     {
@@ -39,12 +38,12 @@ public class Agent : MonoBehaviour
         inputs = new float[net.layers[0]];
         controller.Reset();
         fitness = 0;
-
-        //maxSqrDistanceReached = 0;
-        //closestCheckPoint = null;
-        //lastTakenCheckPoint = null;
+        outline.enabled = false;
 
         totalCheckPointDist = 0;
+        distanceTraveled = 0;
+        nextCheckPointDist = 0;
+        bonusPoints = 0;
         nextCheckpoint = CheckpointManager.instance.firstCheckpoint.transform;
     }
 
@@ -95,10 +94,10 @@ public class Agent : MonoBehaviour
 
         // Devant
         //inputs[0] = RaySensor(pos, transform.forward, 2f);
-        
+
         inputs[0] = GetHorizontalAngle();
         inputs[1] = GetVerticalAngle();
-        
+
         inputs[2] = 1f;
     }
 
@@ -150,41 +149,27 @@ public class Agent : MonoBehaviour
         controller.verticalInput = net.neurons[^1][0];
         controller.horizontalInput = net.neurons[^1][1];
         controller.altitudeInput = net.neurons[^1][2];
-        //controller.rollInput = net.neurons[^1][3];
     }
 
-    private float currentSqrDistance;
+    private float currentDistanceToNext;
+    private float saveDistanceToNext;
 
     private void FitnessUpdate()
     {
-        /*
-        currentSqrDistance = (transform.position - AgentManager.instance.agentOrigin.position).sqrMagnitude;
+        currentDistanceToNext = (nextCheckpoint.position - transform.position).magnitude;
+        if (currentDistanceToNext < saveDistanceToNext) saveDistanceToNext = currentDistanceToNext;
 
-        if (currentSqrDistance > maxSqrDistanceReached)
-        {
-            fitness += ((currentSqrDistance - maxSqrDistanceReached) *
-                        AgentManager.instance.fitnessOverDistanceMultiplier.Evaluate(currentSqrDistance /
-                            AgentManager.instance.maxSqrDistanceToReward)) * AgentManager.instance.distanceWeight;
-            maxSqrDistanceReached = currentSqrDistance;
-        }
-        */
+        distanceTraveled = totalCheckPointDist + (nextCheckPointDist - saveDistanceToNext);
 
-
-        distanceTraveled = totalCheckPointDist +
-                           (nextCheckPointDist - (nextCheckpoint.position - transform.position).magnitude);
-
-        if (fitness < distanceTraveled)
-        {
-            fitness = distanceTraveled;
-        }
+        fitness = distanceTraveled + bonusPoints;
     }
 
     public void CheckPointReach(int point, Transform next)
     {
-        fitness += point;
+        bonusPoints += point;
         totalCheckPointDist += nextCheckPointDist;
         nextCheckpoint = next;
-        nextCheckPointDist = (nextCheckpoint.position - transform.position).magnitude;
+        nextCheckPointDist = saveDistanceToNext = (nextCheckpoint.position - transform.position).magnitude;
     }
 
     public void SetFirstMaterial()

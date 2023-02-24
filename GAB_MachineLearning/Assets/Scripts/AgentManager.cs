@@ -25,6 +25,9 @@ public class AgentManager : MonoSingleton<AgentManager>
     [SerializeField] private int firstCopyInNextGeneration;
     private bool autoCalculateLeaderBoard;
 
+    private int generationCount;
+    [SerializeField] private TMP_Text generationText;
+
     private void Start()
     {
         StartCoroutine(Loop());
@@ -46,6 +49,9 @@ public class AgentManager : MonoSingleton<AgentManager>
     private void StartNewGeneration()
     {
         _agents = _agents.OrderByDescending(a => a.fitness).ToList();
+        
+        generationCount++;
+        generationText.text = $"Generation: {generationCount}";
 
         AddOrRemoveAgents();
         Mutate();
@@ -66,7 +72,7 @@ public class AgentManager : MonoSingleton<AgentManager>
 
         for (int i = 1; i < _agents.Count; i++)
         {
-            _agents[i].name = $"Default {i}";
+            _agents[i].name = NameManager.instance.GetRandomName(AgentType.Default);
             _agents[i].SetDefaultMaterial();
         }
 
@@ -76,17 +82,17 @@ public class AgentManager : MonoSingleton<AgentManager>
             if (count < firstCopyInNextGeneration)
             {
                 _agents[i].net.CopyNet(_agents[0].net);
-                _agents[i].name = $"First Mutated {i}";
+                _agents[i].name = NameManager.instance.GetRandomName(AgentType.First);
             }
             else if (count > firstCopyInNextGeneration && count < firstCopyInNextGeneration * 2 + 1)
             {
                 _agents[i].net.CopyNet(_agents[1].net);
-                _agents[i].name = $"Second Mutated {i}";
+                _agents[i].name = NameManager.instance.GetRandomName(AgentType.Second);
             }
             else
             {
                 _agents[i].net.CopyNet(_agents[i - count * 2].net);
-                _agents[i].name = $"Mutated {i}";
+                _agents[i].name = NameManager.instance.GetRandomName(AgentType.Mutated);
             }
 
             count++;
@@ -164,7 +170,7 @@ public class AgentManager : MonoSingleton<AgentManager>
             nets.Add(_agents[i].net);
         }
 
-        DataManager.instance.Save(nets);
+        DataManager.instance.Save(nets, generationCount);
     }
 
     public void Load()
@@ -179,6 +185,8 @@ public class AgentManager : MonoSingleton<AgentManager>
             }
         }
 
+        generationCount = data.generationCount;
+
         End();
     }
 
@@ -190,10 +198,18 @@ public class AgentManager : MonoSingleton<AgentManager>
 
     public void LeaderBoard()
     {
-        var bests = GetBestAgentsInRun(3);
+        var bests = GetBestAgentsInRun(5);
+
+        foreach (var a in _agents)
+        {
+            if (bests.Contains(a)) continue;
+            if (!a.outline.enabled) continue;
+            a.outline.enabled = false;
+        }
 
         for (int i = 1; i < bests.Length + 1; i++)
         {
+            if(!bests[i - 1].outline.enabled) bests[i - 1].outline.enabled = true;
             leaderboardTexts[i - 1].text = $"{i} - {bests[i - 1].name} ({bests[i - 1].fitness:F2})";
         }
     }

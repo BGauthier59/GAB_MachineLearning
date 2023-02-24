@@ -92,7 +92,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b2e7f7f23c216fe4abcf9453a67a4fea, type: 2}
+  - {fileID: 2100000, guid: a15bcf05dabbc334580def8adb9c0bb8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -12357,6 +12357,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   point: 10
+  baseRankBonusPoint: 10
   scoreText: {fileID: 4963795235493620537}
   ringEntrance: {fileID: 1677853711404197711}
   nextCheckpoint: {fileID: 0}

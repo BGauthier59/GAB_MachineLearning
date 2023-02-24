@@ -18,12 +18,13 @@ public class DataManager : MonoSingleton<DataManager>
         SetPath();
     }
 
-    public void Save(List<NeuralNetwork> _nets)
+    public void Save(List<NeuralNetwork> _nets, int generation)
     {
         StreamWriter streamWriter = new StreamWriter(path, false, encoding);
         Data data = new Data
         {
-            nets = _nets, 
+            nets = _nets,
+            generationCount = generation
         };
 
         serializer.Serialize(streamWriter, data);
