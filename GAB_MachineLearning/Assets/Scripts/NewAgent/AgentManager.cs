@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TMPro;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AgentManager : MonoSingleton<AgentManager>
@@ -28,15 +30,20 @@ public class AgentManager : MonoSingleton<AgentManager>
     private int generationCount;
     [SerializeField] private TMP_Text generationText;
 
+    [SerializeField] private GameObject leaderboardSection;
+    public DataSO dataSo;
+    private bool isFirstGen;
+
     private void Start()
     {
+        isFirstGen = true;
         StartCoroutine(Loop());
     }
 
     private IEnumerator Loop()
     {
         StartNewGeneration();
-        Focus();
+        //Focus();
         yield return new WaitForSeconds(trainingDuration);
         StartCoroutine(Loop());
     }
@@ -54,6 +61,8 @@ public class AgentManager : MonoSingleton<AgentManager>
         generationText.text = $"Generation: {generationCount}";
 
         AddOrRemoveAgents();
+        //if(isFirstGen) ApplyProjectSave();
+        //else 
         Mutate();
         ResetAgents();
         CheckpointManager.instance.Reset();
@@ -153,10 +162,13 @@ public class AgentManager : MonoSingleton<AgentManager>
 
     private void Update()
     {
-        if (autoCalculateLeaderBoard)
-        {
-            LeaderBoard();
-        }
+        if (autoCalculateLeaderBoard) LeaderBoard();
+    }
+
+    private void ApplyProjectSave()
+    {
+        //for (int i = 0; i < _agents.Count; i++) _agents[i].net = dataSo.currentData.data.nets[i];
+        for (int i = 0; i < _agents.Count; i++) _agents[i].net.CopyNet(dataSo.currentData.data.nets[i]);
     }
 
     #region Buttons
@@ -164,12 +176,10 @@ public class AgentManager : MonoSingleton<AgentManager>
     public void Save()
     {
         List<NeuralNetwork> nets = new List<NeuralNetwork>();
-
         for (int i = 0; i < _agents.Count; i++)
         {
             nets.Add(_agents[i].net);
         }
-
         DataManager.instance.Save(nets, generationCount);
     }
 
@@ -177,16 +187,20 @@ public class AgentManager : MonoSingleton<AgentManager>
     {
         var data = DataManager.instance.Load();
 
+        /*
+        dataSo.currentData = new DataStruct
+        {
+            data = data
+        };
+        
+        dataSo.date = System.DateTime.Now.ToString(CultureInfo.InvariantCulture);
+        */
+        
         if (data != null)
         {
-            for (int i = 0; i < _agents.Count; i++)
-            {
-                _agents[i].net = data.nets[i];
-            }
+            for (int i = 0; i < _agents.Count; i++) _agents[i].net = data.nets[i];
         }
-
         generationCount = data.generationCount;
-
         End();
     }
 
@@ -199,18 +213,16 @@ public class AgentManager : MonoSingleton<AgentManager>
     public void LeaderBoard()
     {
         var bests = GetBestAgentsInRun(5);
-
         foreach (var a in _agents)
         {
             if (bests.Contains(a)) continue;
             if (!a.outline.enabled) continue;
             a.outline.enabled = false;
         }
-
         for (int i = 1; i < bests.Length + 1; i++)
         {
             if(!bests[i - 1].outline.enabled) bests[i - 1].outline.enabled = true;
-            leaderboardTexts[i - 1].text = $"{i} - {bests[i - 1].name} ({bests[i - 1].fitness:F2})";
+            leaderboardTexts[i - 1].text = $"{bests[i - 1].name} ({bests[i - 1].fitness:F0})";
         }
     }
 
@@ -219,6 +231,7 @@ public class AgentManager : MonoSingleton<AgentManager>
     public void LeaderBoardToggle()
     {
         autoCalculateLeaderBoard = !autoCalculateLeaderBoard;
+        leaderboardSection.SetActive(autoCalculateLeaderBoard);
     }
 
     #endregion
